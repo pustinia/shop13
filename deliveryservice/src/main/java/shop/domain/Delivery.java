@@ -33,7 +33,11 @@ public class Delivery {
     public void onPostPersist() {
         DeliveryStarted deliveryStarted = new DeliveryStarted(this);
         deliveryStarted.publishAfterCommit();
+    }
 
+    // 아래로 이동함..
+    @PreRemove
+    public void onPreRemove(){
         DeliveryCanceled deliveryCanceled = new DeliveryCanceled(this);
         deliveryCanceled.publishAfterCommit();
     }
@@ -49,15 +53,16 @@ public class Delivery {
     public static void startDelivery(OrderPlaced orderPlaced) {
         //implement business logic here:
 
-        /** Example 1:  new item 
+        // Example 1:  new item , delivery insert, from orderPlaced object
         Delivery delivery = new Delivery();
+        // set 하는 부분을 수정해줌... 20250412 by woongc
+        delivery.setOrderId(orderPlaced.getId());
+        delivery.setCustomerId(orderPlaced.getCustomerId());
+        delivery.setAddress(orderPlaced.getAddress());
+        delivery.setStatus("DELIVERY STARTED");
         repository().save(delivery);
 
-        */
-
-        /** Example 2:  finding and process
-        
-
+        /** Example 2:  finding and process, 일단은 주석처리.. !!!
         repository().findById(orderPlaced.get???()).ifPresent(delivery->{
             
             delivery // do something

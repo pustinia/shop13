@@ -25,11 +25,7 @@ public class Inventory {
 
     @PostPersist
     public void onPostPersist() {
-        InventoryDecreased inventoryDecreased = new InventoryDecreased(this);
-        inventoryDecreased.publishAfterCommit();
-
-        InventoryIncreased inventoryIncreased = new InventoryIncreased(this);
-        inventoryIncreased.publishAfterCommit();
+        
     }
 
     public static InventoryRepository repository() {
@@ -49,17 +45,19 @@ public class Inventory {
 
         */
 
-        /** Example 2:  finding and process
-        
-
-        repository().findById(orderPlaced.get???()).ifPresent(inventory->{
-            
-            inventory // do something
+        // Example 2:  finding and process
+        // 인벤토리는 example2로 진행.
+        // orderPlaced.getProductId 로 변경, 형이 달라짐.. long으로 형변환 고고싱
+        repository().findById(Long.valueOf(orderPlaced.getProductId())
+            ).ifPresent(inventory->{
+            // 여기를 수정함. 아.. stock 값을 string으로 했었네.. 내 실수..
+            inventory.setStock(String.valueOf(Integer.valueOf(inventory.getStock()) - orderPlaced.getQty()));
             repository().save(inventory);
-
-
+            // 내가 찾은 인벤토리의 정보를 이용해서.. 인자 값으로 inventory가 들어가야 함.
+            // 수정한 값으로, 퍼블리싱 한다.
+            InventoryDecreased inventoryDecreased = new InventoryDecreased(inventory);
+            inventoryDecreased.publishAfterCommit();
          });
-        */
 
     }
 
@@ -82,7 +80,8 @@ public class Inventory {
             inventory // do something
             repository().save(inventory);
 
-
+            InventoryIncreased inventoryIncreased = new InventoryIncreased(this);
+            inventoryIncreased.publishAfterCommit();
          });
         */
 
